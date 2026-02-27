@@ -85,9 +85,10 @@ function initForm() {
       email:          form.querySelector('#email').value.trim(),
       telefono:       form.querySelector('#telefono').value.trim(),
       especialidad:   form.querySelector('#especialidad').value.trim(),
-      meta_pacientes: form.querySelector('#meta_pacientes').value.trim(),
-      fecha:          new Date().toISOString(),
-      origen:         'landing-nuvia'
+      meta_pacientes:    form.querySelector('#meta_pacientes').value.trim(),
+      mensaje_adicional: (form.querySelector('#mensaje_adicional') || {value:''}).value.trim(),
+      fecha:             new Date().toISOString(),
+      origen:            'landing-nuvia'
     };
 
     // Estado cargando
