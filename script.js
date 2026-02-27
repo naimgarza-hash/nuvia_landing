@@ -65,25 +65,49 @@ function closeMobileMenu() {
   lucide.createIcons();
 }
 
-// ===================== FORMULARIO — validación + estado éxito =====================
+// ===================== FORMULARIO — validación + envío a n8n =====================
+const N8N_WEBHOOK_URL = 'https://sasilan.app.n8n.cloud/webhook/nuvia-lead';
+
 function initForm() {
   const form    = document.getElementById('contactForm');
   const success = document.getElementById('formSuccess');
   const msgEl   = document.getElementById('successMsg');
+  const btn     = form && form.querySelector('button[type="submit"]');
   if (!form) return;
 
-  form.addEventListener('submit', e => {
+  form.addEventListener('submit', async e => {
     e.preventDefault();
     if (!validateForm(form)) return;
 
     const nombre = form.querySelector('#nombre').value.trim();
+    const payload = {
+      nombre,
+      email:          form.querySelector('#email').value.trim(),
+      telefono:       form.querySelector('#telefono').value.trim(),
+      especialidad:   form.querySelector('#especialidad').value.trim(),
+      meta_pacientes: form.querySelector('#meta_pacientes').value.trim(),
+      fecha:          new Date().toISOString(),
+      origen:         'landing-nuvia'
+    };
 
-    // Ocultar form, mostrar éxito
+    // Estado cargando
+    if (btn) { btn.disabled = true; btn.textContent = 'Enviando…'; }
+
+    try {
+      await fetch(N8N_WEBHOOK_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+    } catch (_) {
+      // Si falla la red, igual mostramos éxito para no bloquear al usuario
+      // Los datos se pierden solo si el webhook está caído
+    }
+
+    // Mostrar éxito
     form.hidden = true;
     success.hidden = false;
     msgEl.textContent = `¡Listo, ${nombre}!`;
-
-    // Renderizar icono check-circle del estado éxito
     lucide.createIcons();
   });
 }
